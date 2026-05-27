@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Portail Gestion Immobilière</title>
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; font-size: 16px; }
+.wrap { max-width: 640px; margin: 0 auto; padding: 16px 16px 50px; }
+.screen { display: none; }
+.screen.active { display: block; }
+.top-bar { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; border: 0.5px solid #e0e0d8; }
+.logo { width: 42px; height: 42px; border-radius: 10px; background: #0F6E56; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 22px; }
+.top-bar h1 { font-size: 17px; font-weight: 600; color: #111; }
+.top-bar p { font-size: 12px; color: #888; margin-top: 2px; }
+.back-btn { background: none; border: none; font-size: 15px; color: #0F6E56; font-weight: 600; cursor: pointer; padding: 4px 0; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; touch-action: manipulation; }
+.stats-bar { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 20px; }
+.stat-card { background: #fff; border-radius: 12px; padding: 12px; border: 0.5px solid #e0e0d8; text-align: center; }
+.stat-card .sv { font-size: 22px; font-weight: 700; color: #0F6E56; }
+.stat-card .sl { font-size: 11px; color: #888; margin-top: 2px; }
+.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.menu-card { background: #fff; border-radius: 16px; padding: 20px 16px; border: 0.5px solid #e0e0d8; cursor: pointer; touch-action: manipulation; transition: transform 0.1s; text-align: left; }
+.menu-card:active { transform: scale(0.97); }
+.menu-card .mc-icon { font-size: 32px; margin-bottom: 10px; }
+.menu-card .mc-title { font-size: 15px; font-weight: 600; color: #111; margin-bottom: 4px; }
+.menu-card .mc-sub { font-size: 12px; color: #888; line-height: 1.4; }
+.menu-card .mc-badge { display: inline-block; margin-top: 8px; background: #E1F5EE; color: #085041; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 99px; }
+.menu-card.accent { background: #0F6E56; border-color: #0F6E56; }
+.menu-card.accent .mc-title { color: #fff; }
+.menu-card.accent .mc-sub { color: #9FE1CB; }
+.menu-card.accent .mc-badge { background: rgba(255,255,255,0.2); color: #fff; }
+.section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin-bottom: 10px; margin-top: 4px; }
+.recent-item { background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; border: 0.5px solid #e0e0d8; display: flex; align-items: center; gap: 12px; }
+.ri-dot { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.ri-dot.visite { background: #E1F5EE; }
+.ri-dot.locataire { background: #E8F0FE; }
+.ri-dot.suivi { background: #FEF5E1; }
+.ri-info { flex: 1; min-width: 0; }
+.ri-title { font-size: 14px; font-weight: 600; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ri-meta { font-size: 12px; color: #888; margin-top: 2px; }
+.ri-tag { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 99px; flex-shrink: 0; }
+.tag-Excellent { background: #E1F5EE; color: #085041; }
+.tag-Bon { background: #EAF4E8; color: #1A6B1A; }
+.tag-Acceptable { background: #FEF5E1; color: #7A5500; }
+.tag-Préoccupant { background: #FEF0E1; color: #8A3A00; }
+.tag-Critique { background: #FAECE7; color: #4A1B0C; }
+.tag-default { background: #f0f0e8; color: #888; }
+.card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 14px; border: 0.5px solid #e0e0d8; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 13px; color: #666; margin-bottom: 5px; font-weight: 500; }
+.field input, .field select, .field textarea { width: 100%; font-family: inherit; font-size: 16px; border: 1px solid #e0e0d8; border-radius: 10px; padding: 12px 14px; background: #fafaf8; color: #1a1a1a; -webkit-appearance: none; appearance: none; }
+.field textarea { resize: none; min-height: 80px; line-height: 1.5; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #1D9E75; background: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dict-hint { font-size: 12px; color: #aaa; margin-top: 4px; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaa' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.stars { display: flex; gap: 6px; }
+.star { font-size: 28px; cursor: pointer; color: #ddd; line-height: 1; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+.star.on { color: #EF9F27; }
+.rating-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 0.5px solid #f0f0e8; }
+.rating-row:last-child { border-bottom: none; }
+.rating-row:first-child { padding-top: 0; }
+.rating-row span { font-size: 14px; color: #333; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag { padding: 8px 14px; border-radius: 99px; font-size: 13px; border: 1px solid #e0e0d8; cursor: pointer; background: #fafaf8; color: #555; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+.tag.on { background: #E1F5EE; border-color: #5DCAA5; color: #085041; font-weight: 500; }
+.glob-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.glob-btn { padding: 12px 10px; border-radius: 12px; font-size: 14px; border: 1px solid #e0e0d8; background: #fafaf8; cursor: pointer; color: #333; text-align: center; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+.glob-btn.on { background: #E1F5EE; border-color: #5DCAA5; color: #085041; font-weight: 600; }
+.glob-btn.full { grid-column: 1/-1; }
+.statut-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.statut-btn { padding: 11px 10px; border-radius: 12px; font-size: 13px; border: 1px solid #e0e0d8; background: #fafaf8; cursor: pointer; color: #333; text-align: center; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+.statut-btn.on.s1 { background: #E1F5EE; border-color: #5DCAA5; color: #085041; font-weight: 600; }
+.statut-btn.on.s2 { background: #E8F0FE; border-color: #93B4F5; color: #1A3A7A; font-weight: 600; }
+.statut-btn.on.s3 { background: #FEF5E1; border-color: #F5CC6A; color: #7A5500; font-weight: 600; }
+.statut-btn.on.s4 { background: #FAECE7; border-color: #F0997B; color: #4A1B0C; font-weight: 600; }
+.photo-zone { border: 2px dashed #c8c8c0; border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; touch-action: manipulation; background: #fafaf8; }
+.photo-zone:active { border-color: #0F6E56; background: #E1F5EE; }
+.photo-zone p { font-size: 13px; color: #888; margin-top: 6px; }
+.photo-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 10px; }
+.photo-thumb { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden; background: #f0f0e8; }
+.photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ph-del { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.photo-count { font-size: 12px; color: #888; margin-top: 6px; text-align: center; }
+.btn-save { width: 100%; background: #0F6E56; color: #fff; border: none; padding: 16px; border-radius: 14px; font-size: 17px; font-weight: 600; cursor: pointer; margin-top: 6px; touch-action: manipulation; }
+.btn-save:active { background: #085041; }
+.btn-save:disabled { background: #aaa; }
+.btn-secondary { width: 100%; background: none; border: 1px solid #e0e0d8; color: #666; padding: 13px; border-radius: 14px; font-size: 15px; cursor: pointer; margin-top: 10px; touch-action: manipulation; }
+.tip { border-radius: 12px; padding: 12px 14px; font-size: 13px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
+.tip.green { background: #E1F5EE; border: 0.5px solid #5DCAA5; color: #085041; }
+.alert { border-radius: 12px; padding: 12px 14px; font-size: 13px; display: none; align-items: center; gap: 10px; margin-top: 10px; }
+.alert.err { background: #FAECE7; border: 1px solid #F0997B; color: #4A1B0C; }
+.alert.ok { background: #E1F5EE; border: 1px solid #5DCAA5; color: #085041; }
+.mic-wrap { position: relative; }
+.mic-wrap textarea { padding-right: 48px; }
+.mic-btn-float { position: absolute; right: 10px; bottom: 10px; width: 32px; height: 32px; border-radius: 50%; border: none; background: #0F6E56; color: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: manipulation; transition: background 0.15s; }
+.mic-btn-float:hover { background: #085041; }
+.mic-btn-float.recording { background: #D85A30; animation: mic-pulse 1s infinite; }
+@keyframes mic-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.mic-status { font-size: 12px; margin-top: 4px; min-height: 16px; color: #D85A30; font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ====== ACCUEIL ====== -->
+<div class="screen active" id="screen-home">
+  <div class="top-bar">
+    <div class="logo">🏠</div>
+    <div><h1>Gestion immobilière</h1><p id="home-date"></p></div>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-card"><div class="sv" id="stat-visites">0</div><div class="sl">Visites</div></div>
+    <div class="stat-card"><div class="sv" id="stat-suivis">0</div><div class="sl">Suivis</div></div>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card accent" onclick="goTo('visite')">
+      <div class="mc-icon">📋</div>
+      <div class="mc-title">Inspection des logements</div>
+      <div class="mc-sub">Inspection complète du logement</div>
+      <div class="mc-badge">🎙 Dictée vocale</div>
+    </div>
+
+    <div class="menu-card" onclick="goTo('suivi')">
+      <div class="mc-icon">📅</div>
+      <div class="mc-title">Suivi de visite</div>
+      <div class="mc-sub">Planification et statuts</div>
+    </div>
+    <div class="menu-card" onclick="goTo('historique')" style="grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:16px 18px;">
+      <div class="mc-icon" style="margin-bottom:0;font-size:28px">🗂️</div>
+      <div>
+        <div class="mc-title">Historique des rapports</div>
+        <div class="mc-sub">Consulter tous les rapports soumis</div>
+      </div>
+    </div>
+  </div>
+  <div class="section-label">Activité récente</div>
+  <div id="recent-list"><div style="text-align:center;padding:24px;color:#aaa;font-size:14px">Aucune activité pour l'instant</div></div>
+</div>
+
+<!-- ====== RAPPORT DE VISITE ====== -->
+<div class="screen" id="screen-visite">
+  <button class="back-btn" onclick="goTo('home')">← Accueil</button>
+  <div class="top-bar"><div class="logo">📋</div><div><h1>Inspection des logements</h1><p>État des lieux</p></div></div>
+  <div class="tip green">💡 <span>Appuyez sur un champ texte → touchez le <strong>🎙 microphone</strong> sur votre clavier pour dicter.</span></div>
+  <div class="card">
+    <div class="section-label">Informations générales</div>
+    <div class="grid-2">
+      <div class="field"><label>Date</label><input type="date" id="v-date" /></div>
+      <div class="field"><label>Heure</label><input type="time" id="v-heure" /></div>
+    </div>
+    <div class="field"><label>Adresse</label><select id="v-adresse"><option value="">Sélectionner une adresse...</option>
+<option>2465 Rue Rachel E</option>
+<option>5636 15e Avenue, Montréal</option>
+<option>146 Rue Mackenzie-King</option>
+<option>447 Rue Béique</option>
+<option>16, Rue Hébert</option>
+<option>37, Rue Authier</option>
+<option>1622 Av. Bourgogne</option>
+<option>1017 Terr. Therrien</option>
+<option>1665 Rue de Bienville</option>
+<option>95 Rue de Vimy</option>
+<option>536 Rue Guy</option>
+<option>528 Rue Guy</option>
+<option>Autre</option>
+</select></div>
+    <div class="field"><label>Logement</label><input type="text" id="v-logement" placeholder="Numéro d'appartement" /></div>
+    <div class="grid-2">
+      <div class="field"><label>Locataire</label><input type="text" id="v-locataire" placeholder="Prénom Nom" /></div>
+      <div class="field"><label>Inspecteur</label><input type="text" id="v-inspecteur" placeholder="Prénom Nom" /></div>
+    </div>
+    <div class="field"><label>Type de visite</label>
+      <select id="v-type"><option value="">Sélectionner...</option><option>Visite annuelle</option><option>Entrée de locataire</option><option>Visite avant départ locataire</option><option>Inspection de suivi et entretien</option><option>Inspection d'urgence</option></select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-label">Évaluation des pièces</div>
+    <div class="rating-row"><span>Salon / Aire commune</span><div class="stars" data-key="salon"><span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span></div></div>
+    <div class="rating-row"><span>Cuisine</span><div class="stars" data-key="cuisine"><span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span></div></div>
+    <div class="rating-row"><span>Chambre(s)</span><div class="stars" data-key="chambre"><span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span></div></div>
+    <div class="rating-row"><span>Salle de bain</span><div class="stars" data-key="sdb"><span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span></div></div>
+    <div class="rating-row"><span>Extérieur / Balcon</span><div class="stars" data-key="ext"><span class="star" data-v="1">★</span><span class="star" data-v="2">★</span><span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span></div></div>
+  </div>
+  <div class="card">
+    <div class="section-label">Problèmes observés</div>
+    <div class="tags" id="v-tags">
+      <div class="tag" onclick="this.classList.toggle('on')">Propreté insuffisante</div>
+      <div class="tag" onclick="this.classList.toggle('on')">Dommages aux murs</div>
+      <div class="tag" onclick="this.classList.toggle('on')">Plomberie</div>
+      <div class="tag" onclick="this.classList.toggle('on')">Électricité</div>
+      <div class="tag" onclick="this.classList.toggle('on')">Moisissures</div>
+      <div class="tag" onclick="this.classList.toggle('on')">Infestation</div>
+      <div class="tag" onclick="this.classList.toggle('on')">Fenêtres / Portes</div>
+      <div class="tag" onclick="this.classList.toggle('on')">Appareils ménagers</div>
+      <div class="tag" onclick="this.classList.toggle('on')">✅ Aucun problème</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-label">Commentaires</div>
+    <div class="field">
+      <label>Observations générales</label>
+      <div class="mic-wrap">
+        <textarea id="v-obs" placeholder="Touchez ici → 🎙 pour dicter... (ou utilisez le bouton micro)" rows="3"></textarea>
+        <button class="mic-btn-float" id="mic-v-obs" onclick="toggleDictee('v-obs')" title="Dicter">🎙</button>
+      </div>
+      <div class="mic-status" id="mic-status-v-obs"></div>
+    </div>
+    <div class="field">
+      <label>Actions requises</label>
+      <div class="mic-wrap">
+        <textarea id="v-actions" placeholder="Ex. Réparer la fuite..." rows="3"></textarea>
+        <button class="mic-btn-float" id="mic-v-actions" onclick="toggleDictee('v-actions')" title="Dicter">🎙</button>
+      </div>
+      <div class="mic-status" id="mic-status-v-actions"></div>
+    </div>
+    <div class="field">
+      <label>Commentaires du locataire</label>
+      <div class="mic-wrap">
+        <textarea id="v-comm" placeholder="Notes du locataire..." rows="2"></textarea>
+        <button class="mic-btn-float" id="mic-v-comm" onclick="toggleDictee('v-comm')" title="Dicter">🎙</button>
+      </div>
+      <div class="mic-status" id="mic-status-v-comm"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-label">Photos</div>
+    <input type="file" id="v-photo-input" accept="image/*" multiple capture="environment" style="display:none" onchange="ajouterPhotos('v',event)" />
+    <div class="photo-zone" onclick="document.getElementById('v-photo-input').click()"><div style="font-size:28px">📷</div><p>Prendre une photo ou choisir depuis la galerie</p></div>
+    <div class="photo-grid" id="v-photo-grid"></div>
+    <div class="photo-count" id="v-photo-count"></div>
+  </div>
+  <div class="card">
+    <div class="section-label">Appréciation globale</div>
+    <div class="glob-grid">
+      <button class="glob-btn" onclick="setGlob('v',this,'Excellent')">😊 Excellent</button>
+      <button class="glob-btn" onclick="setGlob('v',this,'Bon')">🙂 Bon</button>
+      <button class="glob-btn" onclick="setGlob('v',this,'Acceptable')">😐 Acceptable</button>
+      <button class="glob-btn" onclick="setGlob('v',this,'Préoccupant')">😟 Préoccupant</button>
+      <button class="glob-btn full" onclick="setGlob('v',this,'Critique')">🚨 Critique — intervention requise</button>
+    </div>
+  </div>
+  <button class="btn-save" id="v-btn" onclick="soumettre('visite')">💾 Sauvegarder l'inspection</button>
+  <button class="btn-secondary" onclick="resetForm('v')">🔄 Réinitialiser</button>
+  <div class="alert err" id="v-err"><span id="v-err-msg"></span></div>
+  <div class="alert ok" id="v-ok"><span id="v-ok-msg"></span></div>
+</div>
+
+<!-- ====== SUIVI DE VISITE ====== -->
+<div class="screen" id="screen-suivi">
+  <button class="back-btn" onclick="goTo('home')">← Accueil</button>
+  <div class="top-bar"><div class="logo">📅</div><div><h1>Suivi de visite</h1><p>Planification et statuts</p></div></div>
+  <div class="card">
+    <div class="section-label">Informations du logement</div>
+    <div class="field"><label>Adresse du logement</label><select id="s-adresse"><option value="">Sélectionner une adresse...</option>
+<option>2465 Rue Rachel E</option>
+<option>5636 15e Avenue, Montréal</option>
+<option>146 Rue Mackenzie-King</option>
+<option>447 Rue Béique</option>
+<option>16, Rue Hébert</option>
+<option>37, Rue Authier</option>
+<option>1622 Av. Bourgogne</option>
+<option>1017 Terr. Therrien</option>
+<option>1665 Rue de Bienville</option>
+<option>95 Rue de Vimy</option>
+<option>536 Rue Guy</option>
+<option>528 Rue Guy</option>
+<option>Autre</option>
+</select></div>
+    <div class="field"><label>Logement</label><input type="text" id="s-logement" placeholder="Numéro d'appartement" /></div>
+    <div class="field"><label>Type d'unité</label>
+      <select id="s-type-unite"><option value="">Sélectionner...</option><option>Maison</option><option>Studio</option><option>3½</option><option>4½</option><option>5½</option><option>6½</option><option>7½</option></select>
+    </div>
+    <div class="field"><label>Loyer affiché ($)</label><input type="number" id="s-loyer" placeholder="Ex. 1200" /></div>
+  </div>
+  <div class="card">
+    <div class="section-label">Informations du visiteur</div>
+    <div class="field"><label>Nom du visiteur</label><input type="text" id="s-locataire" placeholder="Prénom Nom" /></div>
+    <div class="field"><label>Téléphone visiteur</label><input type="tel" id="s-tel" placeholder="514 000-0000" /></div>
+    <div class="field"><label>Courriel visiteur</label><input type="email" id="s-email" placeholder="nom@exemple.com" /></div>
+    <div class="field"><label>Source lead</label><input type="text" id="s-source" placeholder="Ex. Kijiji, référence, panneau..." /></div>
+    <div class="grid-2">
+      <div class="field"><label>Date prévue</label><input type="date" id="s-date" /></div>
+      <div class="field"><label>Heure prévue</label><input type="time" id="s-heure" /></div>
+    </div>
+    <div class="field"><label>Type de visite</label>
+      <select id="s-type"><option value="">Sélectionner...</option><option>1ère visite</option><option>2ième visite</option></select>
+    </div>
+    <div class="field"><label>Responsable</label><input type="text" id="s-responsable" placeholder="Prénom Nom" /></div>
+  </div>
+  <div class="card">
+    <div class="section-label">Évaluation du visiteur</div>
+    <div class="field"><label>Niveau d'intérêt</label>
+      <select id="s-interet"><option value="">Sélectionner...</option><option>Faible</option><option>Moyen</option><option>Fort</option></select>
+    </div>
+    <div class="field"><label>Qualité du visiteur</label>
+      <select id="s-qualite"><option value="">Sélectionner...</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+    </div>
+    <div class="field"><label>Budget max ($)</label><input type="number" id="s-budget" placeholder="Ex. 1400" /></div>
+    <div class="field"><label>Action suivante</label><input type="text" id="s-action" placeholder="Ex. Rappeler lundi, envoyer bail..." /></div>
+    <div class="field"><label>Raison refus</label><input type="text" id="s-raison" placeholder="Si applicable..." /></div>
+  </div>
+  <div class="card">
+    <div class="section-label">Statut</div>
+    <div class="statut-grid">
+      <button class="statut-btn s1" onclick="setStatut(this,'Planifiée')">📅 Planifiée</button>
+      <button class="statut-btn s2" onclick="setStatut(this,'Confirmée')">✅ Confirmée</button>
+      <button class="statut-btn s3" onclick="setStatut(this,'Reportée')">⏳ Reportée</button>
+      <button class="statut-btn s4" onclick="setStatut(this,'Annulée')">❌ Annulée</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-label">Notes</div>
+    <div class="field">
+      <label>Commentaires</label>
+      <div class="mic-wrap">
+        <textarea id="s-notes" placeholder="Commentaires généraux..." rows="3"></textarea>
+        <button class="mic-btn-float" id="mic-s-notes" onclick="toggleDictee('s-notes')" title="Dicter">🎙</button>
+      </div>
+      <div class="mic-status" id="mic-status-s-notes"></div>
+    </div>
+    <div class="field">
+      <label>Commentaires refus</label>
+      <div class="mic-wrap">
+        <textarea id="s-comm-refus" placeholder="Raison détaillée du refus si applicable..." rows="2"></textarea>
+        <button class="mic-btn-float" id="mic-s-comm-refus" onclick="toggleDictee('s-comm-refus')" title="Dicter">🎙</button>
+      </div>
+      <div class="mic-status" id="mic-status-s-comm-refus"></div>
+    </div>
+    <div class="field"><label>Priorité</label>
+      <select id="s-priorite"><option value="">Sélectionner...</option><option>Normale</option><option>Haute</option><option>Urgente</option></select>
+    </div>
+  </div>
+  <button class="btn-save" id="s-btn" onclick="soumettre('suivi')">💾 Enregistrer le suivi</button>
+  <button class="btn-secondary" onclick="resetForm('s')">🔄 Réinitialiser</button>
+  <div class="alert err" id="s-err"><span id="s-err-msg"></span></div>
+  <div class="alert ok" id="s-ok"><span id="s-ok-msg"></span></div>
+</div>
+
+<!-- ====== HISTORIQUE ====== -->
+<div class="screen" id="screen-historique">
+  <button class="back-btn" onclick="goTo('home')">← Accueil</button>
+  <div class="top-bar"><div class="logo">🗂️</div><div><h1>Historique</h1><p>Tous les enregistrements locaux</p></div></div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <button id="filt-all" onclick="filtrerHist('all')" style="flex:1;padding:9px;border-radius:10px;border:1px solid #0F6E56;background:#E1F5EE;color:#085041;font-weight:600;font-size:13px;cursor:pointer;">Tous</button>
+    <button id="filt-visite" onclick="filtrerHist('visite')" style="flex:1;padding:9px;border-radius:10px;border:1px solid #e0e0d8;background:#fafaf8;color:#555;font-size:13px;cursor:pointer;">📋 Inspections</button>
+    <button id="filt-suivi" onclick="filtrerHist('suivi')" style="flex:1;padding:9px;border-radius:10px;border:1px solid #e0e0d8;background:#fafaf8;color:#555;font-size:13px;cursor:pointer;">📅 Suivis</button>
+  </div>
+  <div id="hist-list"></div>
+</div>
+
+</div>
+<script>
+const AT_TOKEN = 'patckKl7PLX1zvc76.742b080d16e614241963ab29f05a0cb2d21cb793a0eaf0b940691ef7b585b690';
+const AT_BASE  = 'app5Redxqvglz17vB';
+const TABLES   = { visite:'Inspection des logements', locataire:'Nouveaux locataires', suivi:'Suivis de visites' };
+const STORAGE_KEY = 'portail_immo_v1';
+
+const ratings = { salon:0, cuisine:0, chambre:0, sdb:0, ext:0 };
+const globs = { v:'', l:'', s:'' };
+const photos = { v:[] };
+let suiviStatut = '';
+
+// Init
+const now = new Date();
+document.getElementById('home-date').textContent = now.toLocaleDateString('fr-CA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+['v-date','l-entree','s-date'].forEach(id => { const el=document.getElementById(id); if(el) el.value=now.toISOString().split('T')[0]; });
+document.querySelectorAll('.stars').forEach(g => {
+  const key = g.dataset.key;
+  g.querySelectorAll('.star').forEach(s => {
+    s.addEventListener('click', () => {
+      ratings[key] = +s.dataset.v;
+      g.querySelectorAll('.star').forEach(x => x.classList.toggle('on', +x.dataset.v <= ratings[key]));
+    });
+  });
+});
+updateStats(); renderRecent();
+
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+screen).classList.add('active');
+  window.scrollTo(0,0);
+  if(screen==='historique') renderHistorique();
+  if(screen==='home') { updateStats(); renderRecent(); }
+}
+
+function setGlob(form, btn, val) {
+  globs[form] = val;
+  btn.closest('.glob-grid').querySelectorAll('.glob-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function setStatut(btn, val) {
+  suiviStatut = val;
+  document.querySelectorAll('.statut-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function ajouterPhotos(form, event) {
+  Array.from(event.target.files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX=1000; let w=img.width, h=img.height;
+        if(w>MAX||h>MAX){ if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;} }
+        const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        photos[form].push({data:canvas.toDataURL('image/jpeg',0.7),name:file.name});
+        renderPhotos(form);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value='';
+}
+
+function renderPhotos(form) {
+  const grid=document.getElementById(form+'-photo-grid');
+  const count=document.getElementById(form+'-photo-count');
+  if(!grid) return;
+  grid.innerHTML = photos[form].map((p,i) => `<div class="photo-thumb"><img src="${p.data}" /><button class="ph-del" onclick="suppPhoto('${form}',${i})">✕</button></div>`).join('');
+  count.textContent = photos[form].length ? photos[form].length+' photo(s)' : '';
+}
+
+function suppPhoto(form,i){ photos[form].splice(i,1); renderPhotos(form); }
+
+function getRecords(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch(e){return[];} }
+function saveRecords(d){ localStorage.setItem(STORAGE_KEY,JSON.stringify(d)); }
+
+function updateStats(){
+  const all=getRecords();
+  document.getElementById('stat-visites').textContent=all.filter(r=>r.type==='visite').length;
+  document.getElementById('stat-suivis').textContent=all.filter(r=>r.type==='suivi').length;
+}
+
+function renderRecent(){
+  const all=getRecords().slice(0,6);
+  const c=document.getElementById('recent-list');
+  if(!all.length){c.innerHTML='<div style="text-align:center;padding:24px;color:#aaa;font-size:14px">Aucune activité pour l\'instant</div>';return;}
+  const icons={visite:'📋',suivi:'📅'};
+  c.innerHTML=all.map(r=>`<div class="recent-item">
+    <div class="ri-dot ${r.type}">${icons[r.type]}</div>
+    <div class="ri-info">
+      <div class="ri-title">${r.adresse||r.nom||'—'}</div>
+      <div class="ri-meta">${r.date||''} · ${r.type==='visite'?'Inspection des logements':r.type==='locataire'?'Fiche locataire':'Suivi de visite'}</div>
+    </div>
+    ${r.appreciation?`<span class="ri-tag tag-${r.appreciation}">${r.appreciation}</span>`:r.statut?`<span class="ri-tag tag-default">${r.statut}</span>`:''}
+  </div>`).join('');
+}
+
+let histFiltre = 'all';
+
+function filtrerHist(type) {
+  histFiltre = type;
+  ['all','visite','suivi'].forEach(t => {
+    const btn = document.getElementById('filt-'+t);
+    if (!btn) return;
+    if (t === type) {
+      btn.style.background='#E1F5EE'; btn.style.borderColor='#0F6E56'; btn.style.color='#085041'; btn.style.fontWeight='600';
+    } else {
+      btn.style.background='#fafaf8'; btn.style.borderColor='#e0e0d8'; btn.style.color='#555'; btn.style.fontWeight='400';
+    }
+  });
+  renderHistorique();
+}
+
+function renderHistorique(){
+  const all=getRecords();
+  const filtered = histFiltre==='all' ? all : all.filter(r=>r.type===histFiltre);
+  const c=document.getElementById('hist-list');
+  if(!filtered.length){
+    c.innerHTML=`<div style="text-align:center;padding:40px;color:#aaa;font-size:14px">
+      ${all.length===0 ? 'Aucun rapport enregistré pour l\'instant.<br><br>Soumettez une inspection ou un suivi pour les voir ici.' : 'Aucun rapport pour ce filtre.'}
+    </div>`;
+    return;
+  }
+  const icons={visite:'📋',suivi:'📅'};
+  c.innerHTML=filtered.map((r,i)=>{
+    const realIndex=all.indexOf(r);
+    return `<div class="recent-item" style="margin-bottom:8px;cursor:pointer;" onclick="showDetail(${realIndex})">
+    <div class="ri-dot ${r.type}">${icons[r.type]||'📄'}</div>
+    <div class="ri-info">
+      <div class="ri-title">${r.adresse||'—'}</div>
+      <div class="ri-meta">${r.date||''} · ${r.type==='visite'?'Inspection des logements':'Suivi de visite'}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      ${r.appreciation?`<span class="ri-tag tag-${r.appreciation}">${r.appreciation}</span>`:r.statut?`<span class="ri-tag tag-default">${r.statut}</span>`:''}
+      <span style="color:#ccc;font-size:20px">›</span>
+    </div>
+  </div>`;}).join('');
+}
+
+function showDetail(index){
+  const r=getRecords()[index];
+  if(!r) return;
+  const f=r.fields||{};
+  const isVisite=r.type==='visite';
+
+  function row(label,val){
+    if(!val&&val!==0) return '';
+    return `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:0.5px solid #f0f0e8;gap:12px;">
+      <span style="font-size:13px;color:#888;flex-shrink:0;min-width:120px">${label}</span>
+      <span style="font-size:14px;color:#111;text-align:right;word-break:break-word">${val}</span>
+    </div>`;
+  }
+  function card(title,rows){
+    const html=rows.join('');
+    if(!html.trim()) return '';
+    return `<div class="card" style="margin-bottom:12px"><div class="section-label">${title}</div>${html}</div>`;
+  }
+
+  const html=`<div id="detail-modal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#f5f5f0;z-index:1000;overflow-y:auto;">
+    <div style="max-width:640px;margin:0 auto;padding:16px 16px 50px;">
+      <button onclick="document.getElementById('detail-modal').remove()" style="background:none;border:none;font-size:15px;color:#0F6E56;font-weight:600;cursor:pointer;padding:4px 0;margin-bottom:12px;display:flex;align-items:center;gap:6px;">← Retour à l'historique</button>
+      <div class="top-bar">
+        <div class="logo">${isVisite?'📋':'📅'}</div>
+        <div><h1>${isVisite?'Inspection des logements':'Suivi de visite'}</h1><p>${r.date||''}</p></div>
+      </div>
+      ${card('Logement',[
+        row('Adresse',r.adresse),
+        row('Logement',f['Logement']),
+        row('Date',r.date),
+        row('Heure',f['Heure']||f['Heure prévue']),
+        row('Inspecteur/Responsable',f['Inspecteur']||f['Responsable']),
+        row('Type de visite',f['Type de visite']),
+      ])}
+      ${isVisite?card('Évaluation des pièces',[
+        row('Appréciation globale',r.appreciation),
+        row('Salon',f['Note salon']?f['Note salon']+'/5':''),
+        row('Cuisine',f['Note cuisine']?f['Note cuisine']+'/5':''),
+        row('Chambre',f['Note chambre']?f['Note chambre']+'/5':''),
+        row('Salle de bain',f['Note salle de bain']?f['Note salle de bain']+'/5':''),
+        row('Extérieur',f['Note extérieur']?f['Note extérieur']+'/5':''),
+        row('Problèmes',f['Problèmes']),
+      ]):''}
+      ${isVisite?card('Commentaires',[
+        row('Observations',f['Observations']),
+        row('Actions requises',f['Actions requises']),
+        row('Commentaires locataire',f['Commentaires locataire']),
+      ]):''}
+      ${!isVisite?card('Visiteur',[
+        row('Nom du visiteur',f['Nom du visiteur']),
+        row('Téléphone',f['Téléphone visiteur']),
+        row('Courriel',f['Courriel visiteur']),
+        row("Type d'unité",f["Type d'unité"]),
+        row('Loyer affiché',f['Loyer affiché']?f['Loyer affiché']+'$':''),
+        row('Source lead',f['Source lead']),
+      ]):''}
+      ${!isVisite?card('Évaluation',[
+        row("Niveau d'intérêt",f["Niveau d'intérêt"]),
+        row('Qualité du visiteur',f['Qualité du visiteur']),
+        row('Budget max',f['Budget max']?f['Budget max']+'$':''),
+        row('Action suivante',f['Action suivante']),
+        row('Raison refus',f['Raison refus']),
+        row('Statut',r.statut),
+        row('Priorité',f['Priorité']),
+      ]):''}
+      ${card('Notes',[
+        row('Notes',f['Notes']),
+        row('Commentaires refus',f['Commentaires refus']),
+      ])}
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+
+function showAlert(prefix,type,msg){
+  const el=document.getElementById(prefix+'-'+type);
+  const other=document.getElementById(prefix+'-'+(type==='ok'?'err':'ok'));
+  if(type==='err') document.getElementById(prefix+'-err-msg').textContent=msg;
+  else document.getElementById(prefix+'-ok-msg').textContent=msg;
+  if(el){el.style.display='flex'; if(other) other.style.display='none'; setTimeout(()=>el.style.display='none',5000);}
+}
+
+function resetForm(prefix){
+  const screenMap={v:'visite',l:'locataire',s:'suivi'};
+  document.querySelectorAll(`#screen-${screenMap[prefix]} input, #screen-${screenMap[prefix]} textarea`).forEach(el=>el.value='');
+  document.querySelectorAll(`#screen-${screenMap[prefix]} select`).forEach(el=>el.selectedIndex=0);
+  document.querySelectorAll(`#screen-${screenMap[prefix]} .tag.on, #screen-${screenMap[prefix]} .glob-btn.on, #screen-${screenMap[prefix]} .statut-btn.on`).forEach(el=>el.classList.remove('on'));
+  document.querySelectorAll(`#screen-${screenMap[prefix]} .star.on`).forEach(el=>el.classList.remove('on'));
+  if(prefix==='v'){Object.keys(ratings).forEach(k=>ratings[k]=0);globs.v='';photos.v=[];renderPhotos('v');}
+  if(prefix==='l'){globs.l='';photos.l=[];renderPhotos('l');}
+  if(prefix==='s'){suiviStatut='';}
+  const today=new Date().toISOString().split('T')[0];
+  ['v-date','l-entree','s-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+}
+
+async function soumettre(type){
+  let fields={}, record={type, date:new Date().toISOString().split('T')[0]};
+  const prefMap={visite:'v',locataire:'l',suivi:'s'};
+  const prefix=prefMap[type];
+
+  if(type==='visite'){
+    const date=document.getElementById('v-date').value;
+    const addr=document.getElementById('v-adresse').value.trim();
+    const loc=document.getElementById('v-locataire').value.trim();
+    if(!date||!addr||!loc){showAlert('v','err','Remplissez la date, l\'adresse et le locataire.');return;}
+    fields={'Adresse':addr,'Date':date,'Heure':document.getElementById('v-heure').value,'Locataire':loc,
+      'Inspecteur':document.getElementById('v-inspecteur').value.trim(),'Type de visite':document.getElementById('v-type').value,
+      'Note salon':ratings.salon||0,'Note cuisine':ratings.cuisine||0,'Note chambre':ratings.chambre||0,
+      'Note salle de bain':ratings.sdb||0,'Note extérieur':ratings.ext||0,
+      'Problèmes':[...document.querySelectorAll('#v-tags .tag.on')].map(t=>t.textContent).join(' | '),
+      'Observations':document.getElementById('v-obs').value.trim(),
+      'Actions requises':document.getElementById('v-actions').value.trim(),
+      'Logement':document.getElementById('v-logement').value.trim(),
+      'Commentaires locataire':document.getElementById('v-comm').value.trim(),
+      'Appréciation':globs.v,'Nombre de photos':photos.v.length};
+    record={...record,adresse:addr,date,appreciation:globs.v,fields};
+
+  
+
+  } else if(type==='suivi'){
+    const addr=document.getElementById('s-adresse').value.trim();
+    const date=document.getElementById('s-date').value;
+    if(!addr||!date){showAlert('s','err','Remplissez l\'adresse et la date.');return;}
+    fields={'Adresse':addr,'Date prévue':date,'Heure prévue':document.getElementById('s-heure').value,
+      'Logement':document.getElementById('s-logement').value.trim(),
+      'Type d\'unité':document.getElementById('s-type-unite').value,
+      'Loyer affiché':parseFloat(document.getElementById('s-loyer').value)||0,
+      'Nom du visiteur':document.getElementById('s-locataire').value.trim(),
+      'Téléphone visiteur':document.getElementById('s-tel').value.trim(),
+      'Courriel visiteur':document.getElementById('s-email').value.trim(),
+      'Source lead':document.getElementById('s-source').value.trim(),
+      'Responsable':document.getElementById('s-responsable').value.trim(),
+      'Type de visite':document.getElementById('s-type').value,
+      'Niveau d\'intérêt':document.getElementById('s-interet').value,
+      'Qualité du visiteur':document.getElementById('s-qualite').value,
+      'Budget max':parseFloat(document.getElementById('s-budget').value)||0,
+      'Action suivante':document.getElementById('s-action').value.trim(),
+      'Raison refus':document.getElementById('s-raison').value.trim(),
+      'Statut':suiviStatut,'Priorité':document.getElementById('s-priorite').value,
+      'Notes':document.getElementById('s-notes').value.trim(),
+      'Commentaires refus':document.getElementById('s-comm-refus').value.trim()};
+    record={...record,adresse:addr,date,statut:suiviStatut,fields};
+  }
+
+  const all=getRecords(); all.unshift(record); saveRecords(all);
+  const btn=document.getElementById(prefix+'-btn');
+  btn.disabled=true; btn.textContent='⏳ Envoi en cours...';
+
+  try{
+    const res=await fetch(`https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(TABLES[type])}`,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+AT_TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify({fields})
+    });
+    if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'Erreur');}
+    showAlert(prefix,'ok','✅ Envoyé dans Airtable avec succès !');
+    setTimeout(()=>{resetForm(prefix);goTo('home');},2000);
+  }catch(e){
+    showAlert(prefix,'err','⚠️ Sauvegardé localement. Erreur Airtable : '+e.message);
+  }finally{
+    btn.disabled=false;
+    btn.textContent=type==='visite'?'💾 Sauvegarder l'inspection':type==='locataire'?'💾 Enregistrer le locataire':'💾 Enregistrer le suivi';
+  }
+}
+
+// ===== DICTÉE VOCALE (Chrome/Edge Mac) =====
+let activeRec = null;
+let activeFieldId = null;
+
+function toggleDictee(fieldId) {
+  if (activeRec && activeFieldId === fieldId) {
+    activeRec.stop();
+    return;
+  }
+  if (activeRec) activeRec.stop();
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    const status = document.getElementById('mic-status-' + fieldId);
+    if (status) status.textContent = '⚠️ Dictée non supportée — utilisez le micro du clavier iOS';
+    setTimeout(() => { if(status) status.textContent=''; }, 3000);
+    return;
+  }
+
+  const rec = new SR();
+  rec.lang = 'fr-CA';
+  rec.continuous = true;
+  rec.interimResults = true;
+  activeRec = rec;
+  activeFieldId = fieldId;
+
+  const field = document.getElementById(fieldId);
+  const btn = document.getElementById('mic-' + fieldId);
+  const status = document.getElementById('mic-status-' + fieldId);
+  let base = field.value;
+
+  btn.classList.add('recording');
+  btn.textContent = '⏹';
+  if (status) status.textContent = '🔴 Enregistrement en cours... Parlez maintenant';
+
+  rec.onresult = (e) => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) final += t;
+      else interim += t;
+    }
+    if (final) base += (base ? ' ' : '') + final;
+    field.value = base + (interim ? ' ' + interim : '');
+  };
+
+  rec.onerror = (e) => {
+    btn.classList.remove('recording');
+    btn.textContent = '🎙';
+    if (status) status.textContent = '⚠️ Erreur microphone — vérifiez les permissions';
+    setTimeout(() => { if(status) status.textContent=''; }, 3000);
+    activeRec = null; activeFieldId = null;
+  };
+
+  rec.onend = () => {
+    btn.classList.remove('recording');
+    btn.textContent = '🎙';
+    if (status) status.textContent = field.value ? '✅ Dictée terminée' : '';
+    setTimeout(() => { if(status) status.textContent=''; }, 2000);
+    activeRec = null; activeFieldId = null;
+  };
+
+  rec.start();
+}
+</script>
+</body>
+</html>
